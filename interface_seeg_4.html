@@ -1,0 +1,723 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parcours Collaborateur SEEG - Logiciel MCH</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --seeg-blue: #1e40af;
+            --seeg-blue-light: #3b82f6;
+            --seeg-blue-dark: #1e3a8a;
+        }
+        
+        .timeline-connector {
+            background: linear-gradient(90deg, var(--seeg-blue-light) 0%, var(--seeg-blue) 100%);
+            height: 4px;
+            position: relative;
+        }
+        
+        .phase-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+        
+        .phase-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(30, 64, 175, 0.15);
+            border-color: var(--seeg-blue-light);
+        }
+        
+        .phase-card.active {
+            border-color: var(--seeg-blue);
+            transform: translateY(-4px);
+            box-shadow: 0 15px 30px rgba(30, 64, 175, 0.2);
+        }
+        
+        .details-panel {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out, opacity 0.3s ease-in-out;
+            opacity: 0;
+        }
+        
+        .details-panel.active {
+            max-height: 800px;
+            opacity: 1;
+        }
+        
+        .mch-badge {
+            background: linear-gradient(135deg, var(--seeg-blue) 0%, var(--seeg-blue-light) 100%);
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 2px 6px;
+            border-radius: 8px;
+            color: white;
+            display: inline-block;
+            margin: 2px;
+        }
+        
+        .sub-step {
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .sub-step:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 8px;
+            height: 8px;
+            background: var(--seeg-blue-light);
+            border-radius: 50%;
+        }
+        
+        .phase-icon {
+            font-size: 2rem;
+            color: var(--seeg-blue);
+            margin-bottom: 1rem;
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    
+    <!-- Header -->
+    <header class="bg-white shadow-sm border-b-4 border-blue-700 py-6">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="text-center">
+                <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                    Le Parcours Collaborateur SEEG
+                </h1>
+                <p class="text-xl text-gray-600 mb-4">
+                    Votre Expérience RH Digitalisée avec le MCH
+                </p>
+                <div class="inline-flex items-center bg-blue-700 text-white px-6 py-2 rounded-full text-sm font-medium">
+                    <i class="fas fa-microchip mr-2"></i>
+                    Powered by CNX 4.0 & MCH Technology
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Timeline Container -->
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        
+        <!-- Timeline Navigation -->
+        <div class="relative mb-12">
+            <div class="timeline-connector"></div>
+            <div class="grid grid-cols-5 gap-4 relative -mt-2">
+                <div class="phase-card bg-white rounded-xl p-6 text-center shadow-lg" data-phase="1">
+                    <div class="phase-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">Phase 1</h3>
+                    <p class="text-sm text-gray-600 font-medium">Sourcing & Acquisition</p>
+                    <p class="text-xs text-gray-500 mt-1">des Talents</p>
+                </div>
+                
+                <div class="phase-card bg-white rounded-xl p-6 text-center shadow-lg" data-phase="2">
+                    <div class="phase-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">Phase 2</h3>
+                    <p class="text-sm text-gray-600 font-medium">Intégration &</p>
+                    <p class="text-xs text-gray-500 mt-1">Socialisation</p>
+                </div>
+                
+                <div class="phase-card bg-white rounded-xl p-6 text-center shadow-lg" data-phase="3">
+                    <div class="phase-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">Phase 3</h3>
+                    <p class="text-sm text-gray-600 font-medium">Engagement &</p>
+                    <p class="text-xs text-gray-500 mt-1">Performance</p>
+                </div>
+                
+                <div class="phase-card bg-white rounded-xl p-6 text-center shadow-lg" data-phase="4">
+                    <div class="phase-icon">
+                        <i class="fas fa-stairs"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">Phase 4</h3>
+                    <p class="text-sm text-gray-600 font-medium">Évolution &</p>
+                    <p class="text-xs text-gray-500 mt-1">Mobilité</p>
+                </div>
+                
+                <div class="phase-card bg-white rounded-xl p-6 text-center shadow-lg" data-phase="5">
+                    <div class="phase-icon">
+                        <i class="fas fa-door-open"></i>
+                    </div>
+                    <h3 class="font-bold text-lg text-gray-800 mb-2">Phase 5</h3>
+                    <p class="text-sm text-gray-600 font-medium">Transition &</p>
+                    <p class="text-xs text-gray-500 mt-1">Départ</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Details Panels -->
+        <div class="space-y-6">
+            
+            <!-- Phase 1 Details -->
+            <div class="details-panel bg-white rounded-xl shadow-lg p-8" id="phase-1-details">
+                <div class="fade-in">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center">
+                        <i class="fas fa-search mr-3"></i>
+                        Phase 1 : Sourcing & Acquisition des Talents
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">1.1 Définition du Besoin</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Analyse du besoin de recrutement</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Référentiel RH</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Élaboration de l'offre d'emploi</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Recrutement & Intégration</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Choix des canaux de diffusion</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Recrutement & Intégration</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">1.2 Recrutement & Sélection</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Réception & Gestion des candidatures</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Recrutement & Intégration</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Pré-sélection & Évaluation</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Recrutement & Intégration</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Entretiens Approfondis</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Recrutement & Intégration</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Tests & Vérifications</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Décision & Offre</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">1.3 Pré-Intégration</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Collecte des documents</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Préparation logistique</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Communication avant arrivée</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 rounded-lg">
+                        <h5 class="font-semibold mb-2">🎯 Bénéfices MCH pour cette phase :</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Centralisation des candidatures et suivi automatisé</li>
+                            <li>• Processus de sélection standardisé et traçable</li>
+                            <li>• Réduction du temps de recrutement de 40%</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 2 Details -->
+            <div class="details-panel bg-white rounded-xl shadow-lg p-8" id="phase-2-details">
+                <div class="fade-in">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center">
+                        <i class="fas fa-handshake mr-3"></i>
+                        Phase 2 : Intégration & Socialisation (Onboarding)
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">2.1 Accueil & Formalités</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Arrivée et accueil personnalisé</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Finalisation du dossier administratif</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                        <span class="mch-badge">Profil Carrière</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Remise des outils de travail</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">2.2 Immersion & Apprentissage</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Suivi du plan d'intégration</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Recrutement & Intégration</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Formations initiales</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Formation</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Accompagnement et mentorat</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">2.3 Évaluation & Ajustement</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Points de suivi réguliers</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Collecte de feedback</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Évaluations</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Validation période d'essai</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 rounded-lg">
+                        <h5 class="font-semibold mb-2">🎯 Bénéfices MCH pour cette phase :</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Parcours d'intégration personnalisé et guidé</li>
+                            <li>• Suivi automatique des étapes d'onboarding</li>
+                            <li>• Amélioration de 60% du taux de rétention en période d'essai</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 3 Details -->
+            <div class="details-panel bg-white rounded-xl shadow-lg p-8" id="phase-3-details">
+                <div class="fade-in">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center">
+                        <i class="fas fa-chart-line mr-3"></i>
+                        Phase 3 : Engagement & Performance Continue (Vie Active)
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">3.1 Contribution Quotidienne</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Réalisation des missions</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Gestion administrative courante</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                        <span class="mch-badge">Profil Carrière</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Préparation éléments de paie</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">3.2 Développement Professionnel</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Identification besoins de développement</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">GPEC</span>
+                                        <span class="mch-badge">Évaluations</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Accès aux formations</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Formation</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Évaluation des acquisitions</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Formation</span>
+                                        <span class="mch-badge">GPEC</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">3.3 Performance & Engagement</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Entretiens périodiques</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Évaluations</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Feedback continu</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Mesure de l'engagement</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Indicateurs RH</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 rounded-lg">
+                        <h5 class="font-semibold mb-2">🎯 Bénéfices MCH pour cette phase :</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Self-service RH pour 80% des demandes courantes</li>
+                            <li>• Pilotage temps réel des performances et compétences</li>
+                            <li>• Amélioration de 45% de l'engagement collaborateur</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 4 Details -->
+            <div class="details-panel bg-white rounded-xl shadow-lg p-8" id="phase-4-details">
+                <div class="fade-in">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center">
+                        <i class="fas fa-stairs mr-3"></i>
+                        Phase 4 : Évolution de Carrière & Mobilité
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">4.1 Gestion des Talents</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Identification des hauts potentiels</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Plans de développement individualisés</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Formation</span>
+                                        <span class="mch-badge">GPEC</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-800 mb-3 mt-6">4.2 Mobilité Interne</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Expression des souhaits d'évolution</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Évaluations</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Accès aux opportunités internes</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Carrières & Talents</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Prise de nouvelles fonctions</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                        <span class="mch-badge">Profil Carrière</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">4.3 Plans de Succession</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Identification postes clés et successeurs</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Carrières & Talents</span>
+                                        <span class="mch-badge">GPEC</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Préparation des relèves</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Formation</span>
+                                        <span class="mch-badge">Carrières & Talents</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-800 mb-3 mt-6">4.4 Reconnaissance & Fidélisation</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Programmes de reconnaissance</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Stratégies de rétention</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 rounded-lg">
+                        <h5 class="font-semibold mb-2">🎯 Bénéfices MCH pour cette phase :</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Cartographie complète des talents et potentiels</li>
+                            <li>• Automatisation des processus de mobilité interne</li>
+                            <li>• Augmentation de 70% des promotions internes</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Phase 5 Details -->
+            <div class="details-panel bg-white rounded-xl shadow-lg p-8" id="phase-5-details">
+                <div class="fade-in">
+                    <h2 class="text-2xl font-bold text-blue-700 mb-6 flex items-center">
+                        <i class="fas fa-door-open mr-3"></i>
+                        Phase 5 : Transition & Départ (Offboarding)
+                    </h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">5.1 Gestion de la Décision</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Notification du départ</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Planification du départ</span>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-800 mb-3 mt-6">5.2 Processus de Départ</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Entretien de départ</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Transfert de connaissances</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Restitution du matériel</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-blue-50 rounded-lg p-4">
+                            <h4 class="font-semibold text-gray-800 mb-3">5.3 Formalités Administratives</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Préparation éléments pour STC</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                    </div>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Remise documents de fin de contrat</span>
+                                </div>
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Archivage du dossier employé</span>
+                                    <div class="mt-1">
+                                        <span class="mch-badge">Gestion Administrative</span>
+                                        <span class="mch-badge">Profil Carrière</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-semibold text-gray-800 mb-3 mt-6">5.4 Post-Départ</h4>
+                            <div class="space-y-2 text-sm">
+                                <div class="sub-step">
+                                    <span class="text-gray-700">Gestion du réseau Alumni</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6 bg-gradient-to-r from-blue-700 to-blue-600 text-white p-4 rounded-lg">
+                        <h5 class="font-semibold mb-2">🎯 Bénéfices MCH pour cette phase :</h5>
+                        <ul class="text-sm space-y-1">
+                            <li>• Processus de départ structuré et sécurisé</li>
+                            <li>• Automatisation des formalités administratives</li>
+                            <li>• Conservation de la relation avec les anciens collaborateurs</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modules Transversaux -->
+        <div class="mt-12 bg-gradient-to-br from-blue-700 via-blue-800 to-blue-900 rounded-xl p-8 text-white">
+            <h2 class="text-2xl font-bold mb-6 text-center">
+                <i class="fas fa-cogs mr-3"></i>
+                Modules MCH Transversaux
+            </h2>
+            <p class="text-center text-blue-100 mb-8">Ces modules accompagnent le collaborateur à chaque étape de son parcours</p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
+                    <i class="fas fa-database text-2xl mb-3"></i>
+                    <h4 class="font-semibold mb-2">Référentiel RH</h4>
+                    <p class="text-sm text-blue-100">Socle d'informations centralisé</p>
+                </div>
+                
+                <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
+                    <i class="fas fa-chart-pie text-2xl mb-3"></i>
+                    <h4 class="font-semibold mb-2">Indicateurs RH</h4>
+                    <p class="text-sm text-blue-100">Tableaux de bord et reporting</p>
+                </div>
+                
+                <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
+                    <i class="fas fa-shield-alt text-2xl mb-3"></i>
+                    <h4 class="font-semibold mb-2">Sécurité & Accès</h4>
+                    <p class="text-sm text-blue-100">Gestion des droits utilisateurs</p>
+                </div>
+                
+                <div class="bg-white bg-opacity-10 rounded-lg p-4 text-center">
+                    <i class="fas fa-bell text-2xl mb-3"></i>
+                    <h4 class="font-semibold mb-2">Alertes & Notifications</h4>
+                    <p class="text-sm text-blue-100">Rappels automatiques</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="mt-8 bg-blue-50 border-l-4 border-blue-700 p-6 rounded-r-lg">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle text-blue-700 text-xl mr-3 mt-1"></i>
+                <div>
+                    <h3 class="text-lg font-semibold text-blue-700 mb-2">Comment naviguer dans cette timeline</h3>
+                    <p class="text-gray-700 mb-3">Cliquez sur chaque phase du parcours collaborateur pour découvrir les détails des processus et l'apport du logiciel MCH.</p>
+                    <div class="text-sm text-gray-600">
+                        <p><strong>💡 Astuce :</strong> Les badges colorés indiquent les modules MCH impliqués à chaque étape.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Phase selection management
+        document.addEventListener('DOMContentLoaded', function() {
+            const phaseCards = document.querySelectorAll('.phase-card');
+            const detailsPanels = document.querySelectorAll('.details-panel');
+            
+            // Add click events to phase cards
+            phaseCards.forEach(card => {
+                card.addEventListener('click', function() {
+                    const phaseNumber = this.getAttribute('data-phase');
+                    
+                    // Remove active class from all cards and panels
+                    phaseCards.forEach(c => c.classList.remove('active'));
+                    detailsPanels.forEach(p => p.classList.remove('active'));
+                    
+                    // Add active class to clicked card
+                    this.classList.add('active');
+                    
+                    // Show corresponding details panel
+                    const targetPanel = document.getElementById(`phase-${phaseNumber}-details`);
+                    if (targetPanel) {
+                        targetPanel.classList.add('active');
+                        
+                        // Smooth scroll to details panel
+                        setTimeout(() => {
+                            targetPanel.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'start' 
+                            });
+                        }, 100);
+                    }
+                });
+            });
+            
+            // Auto-activate first phase
+            if (phaseCards.length > 0) {
+                phaseCards[0].click();
+            }
+            
+            // Add pulse animation to phase cards
+            setInterval(() => {
+                const randomCard = phaseCards[Math.floor(Math.random() * phaseCards.length)];
+                if (!randomCard.classList.contains('active')) {
+                    randomCard.classList.add('pulse-animation');
+                    setTimeout(() => {
+                        randomCard.classList.remove('pulse-animation');
+                    }, 2000);
+                }
+            }, 5000);
+        });
+    </script>
+
+</body>
+</html>
